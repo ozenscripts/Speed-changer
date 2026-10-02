@@ -1,0 +1,154 @@
+-- Onyx And Flash | Speed Changer
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "OnyxAndFlash"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main GUI
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 220, 0, 125)
+main.Position = UDim2.new(0.5, -110, 0.5, -60)
+main.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+main.BorderSizePixel = 0
+main.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 8)
+corner.Parent = main
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -35, 0, 30)
+title.BackgroundTransparency = 1
+title.Text = "Onyx And Flash"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 16
+title.Font = Enum.Font.GothamBold
+title.Parent = main
+
+-- Speed box
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(0, 130, 0, 32)
+box.Position = UDim2.new(0, 10, 0, 42)
+box.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+box.BorderSizePixel = 0
+box.PlaceholderText = "Enter speed"
+box.Text = ""
+box.TextColor3 = Color3.fromRGB(255, 255, 255)
+box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+box.TextSize = 14
+box.Font = Enum.Font.Gotham
+box.Parent = main
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = UDim.new(0, 6)
+boxCorner.Parent = box
+
+-- Change speed button
+local change = Instance.new("TextButton")
+change.Size = UDim2.new(0, 180, 0, 32)
+change.Position = UDim2.new(0, 20, 0, 82)
+change.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
+change.BorderSizePixel = 0
+change.Text = "Change speed"
+change.TextColor3 = Color3.fromRGB(255, 255, 255)
+change.TextSize = 14
+change.Font = Enum.Font.GothamBold
+change.Parent = main
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 6)
+buttonCorner.Parent = change
+
+-- Change speed
+change.MouseButton1Click:Connect(function()
+	local speed = tonumber(box.Text)
+
+	if speed then
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+		if humanoid then
+			humanoid.WalkSpeed = speed
+		end
+	end
+end)
+
+-- Toggle button
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(0, 28, 0, 28)
+toggle.Position = UDim2.new(1, -30, 0, 1)
+toggle.BackgroundTransparency = 1
+toggle.Text = "-"
+toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggle.TextSize = 20
+toggle.Font = Enum.Font.GothamBold
+toggle.Parent = main
+
+toggle.MouseButton1Click:Connect(function()
+	main.Visible = false
+
+	local open = Instance.new("TextButton")
+	open.Size = UDim2.new(0, 38, 0, 38)
+	open.Position = UDim2.new(0, 10, 0.5, -19)
+	open.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+	open.BorderSizePixel = 0
+	open.Text = "+"
+	open.TextColor3 = Color3.fromRGB(255, 255, 255)
+	open.TextSize = 22
+	open.Font = Enum.Font.GothamBold
+	open.Parent = gui
+
+	local openCorner = Instance.new("UICorner")
+	openCorner.CornerRadius = UDim.new(0, 8)
+	openCorner.Parent = open
+
+	open.MouseButton1Click:Connect(function()
+		main.Visible = true
+		open:Destroy()
+	end)
+end)
+
+-- Dragging
+local dragging = false
+local dragStart
+local startPos
+
+main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = main.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and (
+		input.UserInputType == Enum.UserInputType.MouseMovement
+		or input.UserInputType == Enum.UserInputType.Touch
+	) then
+
+		local delta = input.Position - dragStart
+
+		main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
